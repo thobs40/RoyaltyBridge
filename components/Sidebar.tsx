@@ -1,31 +1,43 @@
 
 import React from 'react';
-import { NAV_ITEMS } from '../constants';
+import { NAV_ITEMS, CMO_NAV_ITEMS } from '../constants';
 import { LogOut } from 'lucide-react';
+import { UserRole } from '../types';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  role: UserRole;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, onLogout, role }) => {
+  const items = role === 'CMO' ? CMO_NAV_ITEMS : NAV_ITEMS;
+
   return (
     <aside className="w-64 glass h-screen fixed left-0 top-0 border-r border-white/10 flex flex-col z-40">
       <div className="p-8">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-          MiRoy
-        </h1>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/20">
+            <h1 className="text-xl font-black text-white">M</h1>
+          </div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+            MiRoy
+          </h1>
+        </div>
+        <div className="mt-4 px-3 py-1 bg-white/5 border border-white/10 rounded-full inline-block">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{role} Portal</p>
+        </div>
       </div>
 
       <nav className="flex-1 px-4 space-y-2">
-        {NAV_ITEMS.map((item) => (
+        {items.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
               activeTab === item.id
-                ? 'bg-violet-600/20 text-violet-400 border border-violet-500/30'
+                ? 'bg-violet-600/20 text-violet-400 border border-violet-500/30 shadow-lg shadow-violet-600/5'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >

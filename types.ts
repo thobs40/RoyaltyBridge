@@ -28,6 +28,45 @@ export interface Submission {
   cmo: string;
 }
 
+export interface Transaction {
+  id: string;
+  type: 'CREDIT' | 'DEBIT';
+  amount: number;
+  description: string;
+  date: string;
+  status: 'COMPLETED' | 'PENDING' | 'FAILED';
+  method?: string;
+}
+
+// CMO Specific Types
+export interface CMOPayment {
+  id: string;
+  memberName: string;
+  country: string;
+  worksCount: number;
+  amount: number;
+  status: 'Processed' | 'Processing' | 'Pending';
+  date: string;
+}
+
+export interface IPQuery {
+  id: string;
+  type: 'Ownership Verification' | 'Copyright Dispute' | 'Territory Rights' | 'ISRC Conflict';
+  requestingParty: string;
+  workTitle: string;
+  status: 'Resolved' | 'Under Review' | 'Pending';
+  priority: 'High' | 'Medium' | 'Low';
+}
+
+export interface CMOWork {
+  id: string;
+  title: string;
+  creator: string;
+  iswc: string;
+  territories: string[];
+  status: 'Active' | 'Under Review' | 'Conflict';
+}
+
 export interface Stats {
   totalEarnings: number;
   totalPlays: number;
