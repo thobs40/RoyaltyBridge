@@ -1,5 +1,8 @@
 {
   "name": "MiRoy - Music Royalty Management",
   "description": "A comprehensive platform connecting music creators with collection societies, providing clear royalty tracking and streamlined work registration.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
 }
