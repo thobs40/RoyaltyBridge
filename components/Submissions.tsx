@@ -1,16 +1,9 @@
 
 import React from 'react';
 import { Send, CheckCircle, Clock, AlertCircle, FileText, ChevronRight } from 'lucide-react';
-import { Submission } from '../types';
+import { MOCK_SUBMISSIONS } from '../constants';
 
-interface SubmissionsProps {
-  submissions: Submission[];
-}
-
-const Submissions: React.FC<SubmissionsProps> = ({ submissions }) => {
-  const approved = submissions.filter(s => s.status === 'Approved').length;
-  const reviewing = submissions.filter(s => s.status === 'Reviewing').length;
-
+const Submissions: React.FC = () => {
   return (
     <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-[1600px] mx-auto">
       <header className="mb-10">
@@ -21,10 +14,10 @@ const Submissions: React.FC<SubmissionsProps> = ({ submissions }) => {
       <div className="glass rounded-[3rem] border border-white/5 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-white/5">
            {[
-             { label: 'Total Submitted', val: submissions.length, icon: <FileText size={20} className="text-slate-400" /> },
-             { label: 'Approved', val: approved, icon: <CheckCircle size={20} className="text-emerald-400" /> },
-             { label: 'In Review', val: reviewing, icon: <Clock size={20} className="text-amber-400" /> },
-             { label: 'Action Required', val: '0', icon: <AlertCircle size={20} className="text-red-400" /> },
+             { label: 'Total Submitted', val: '42', icon: <FileText size={20} className="text-slate-400" /> },
+             { label: 'Approved', val: '38', icon: <CheckCircle size={20} className="text-emerald-400" /> },
+             { label: 'In Review', val: '3', icon: <Clock size={20} className="text-amber-400" /> },
+             { label: 'Action Required', val: '1', icon: <AlertCircle size={20} className="text-red-400" /> },
            ].map((stat, i) => (
              <div key={i} className="p-8 flex flex-col items-center text-center group">
                 <div className="mb-4 p-3 bg-white/5 rounded-2xl group-hover:scale-110 transition-transform">{stat.icon}</div>
@@ -36,7 +29,7 @@ const Submissions: React.FC<SubmissionsProps> = ({ submissions }) => {
       </div>
 
       <div className="mt-10 space-y-4">
-        {submissions.map((sub) => (
+        {MOCK_SUBMISSIONS.map((sub) => (
           <div key={sub.id} className="glass p-6 rounded-[2.5rem] border border-white/5 hover:border-white/10 transition-all flex items-center justify-between group">
              <div className="flex items-center gap-6">
                 <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-slate-600 group-hover:text-violet-400 transition-colors">
@@ -64,8 +57,8 @@ const Submissions: React.FC<SubmissionsProps> = ({ submissions }) => {
                 </div>
 
                 <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border ${
-                  sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
-                  'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                  sub.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/10' : 
+                  'bg-amber-500/10 text-amber-400 border-amber-500/10'
                 }`}>
                    {sub.status}
                 </div>

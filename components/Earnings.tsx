@@ -1,15 +1,8 @@
 
 import React from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Download, Calendar, ExternalLink, PieChart as PieIcon } from 'lucide-react';
-import { RoyaltyRecord } from '../types';
 
-interface EarningsProps {
-  works: RoyaltyRecord[];
-}
-
-const Earnings: React.FC<EarningsProps> = ({ works }) => {
-  const totalEarnings = works.reduce((sum, w) => sum + w.earnings, 0);
-
+const Earnings: React.FC = () => {
   return (
     <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-[1600px] mx-auto">
       <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-center gap-6">
@@ -34,7 +27,7 @@ const Earnings: React.FC<EarningsProps> = ({ works }) => {
            <div className="flex justify-between items-start mb-10">
               <div>
                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1">Current Balance</p>
-                 <h3 className="text-5xl font-black text-white tracking-tighter">${totalEarnings.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+                 <h3 className="text-5xl font-black text-white tracking-tighter">$14,204.30</h3>
               </div>
               <div className="text-right">
                  <p className="text-emerald-400 font-black flex items-center justify-end gap-1">
@@ -48,15 +41,15 @@ const Earnings: React.FC<EarningsProps> = ({ works }) => {
               <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">Platform Breakdown</h4>
               <div className="space-y-6">
                  {[
-                   { name: 'Spotify', color: '#1DB954', amount: totalEarnings * 0.58, percent: 58 },
-                   { name: 'Apple Music', color: '#FA243C', amount: totalEarnings * 0.24, percent: 24 },
-                   { name: 'YouTube Music', color: '#FF0000', amount: totalEarnings * 0.11, percent: 11 },
-                   { name: 'Sync & Radio', color: '#8B5CF6', amount: totalEarnings * 0.07, percent: 7 },
+                   { name: 'Spotify', color: '#1DB954', amount: 8240, percent: 58 },
+                   { name: 'Apple Music', color: '#FA243C', amount: 3410, percent: 24 },
+                   { name: 'YouTube Music', color: '#FF0000', amount: 1550, percent: 11 },
+                   { name: 'Sync & Radio', color: '#8B5CF6', amount: 1004, percent: 7 },
                  ].map(platform => (
                    <div key={platform.name} className="space-y-2">
                       <div className="flex justify-between text-sm font-bold">
                          <span className="text-white">{platform.name}</span>
-                         <span className="text-slate-400">${platform.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} ({platform.percent}%)</span>
+                         <span className="text-slate-400">${platform.amount.toLocaleString()} ({platform.percent}%)</span>
                       </div>
                       <div className="h-3 w-full bg-white/5 rounded-full overflow-hidden">
                          <div 

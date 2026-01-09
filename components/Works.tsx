@@ -1,16 +1,12 @@
 
 import React, { useState } from 'react';
 import { Music, Filter, Search, MoreHorizontal, Globe, Shield, ExternalLink, Play } from 'lucide-react';
-import { RoyaltyRecord } from '../types';
+import { MOCK_ROYALTIES } from '../constants';
 
-interface WorksProps {
-  works: RoyaltyRecord[];
-}
-
-const Works: React.FC<WorksProps> = ({ works }) => {
+const Works: React.FC = () => {
   const [search, setSearch] = useState('');
 
-  const filteredWorks = works.filter(w => 
+  const filteredWorks = MOCK_ROYALTIES.filter(w => 
     w.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -60,7 +56,7 @@ const Works: React.FC<WorksProps> = ({ works }) => {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-black text-white group-hover:text-violet-400 transition-colors">{work.title}</h3>
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">ID: {work.id.substr(0, 8).toUpperCase()}</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">ISRC: US-3MY-24-00{work.id}2</p>
                 </div>
                 <button className="text-slate-600 hover:text-white transition-colors">
                   <MoreHorizontal size={20} />
@@ -87,7 +83,7 @@ const Works: React.FC<WorksProps> = ({ works }) => {
                         </div>
                       ))}
                     </div>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ownership Verified</span>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">2 Holders</span>
                  </div>
                  <div className="flex gap-2">
                     <button className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-slate-400 hover:text-white">

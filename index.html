@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,48 +7,64 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        :root {
+            --gloss-blue: rgba(59, 130, 246, 0.08);
+            --gloss-border: rgba(255, 255, 255, 0.12);
+            --accent-blue: #3b82f6;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617;
+            color: #f8fafc;
+        }
         .glass {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--gloss-border);
+        }
+        .glossy-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        }
+        .glossy-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.05) 0%, rgba(255,255,255,0.01) 100%);
         }
         .gradient-bg {
-            background: radial-gradient(circle at top left, #1e1b4b, #0f172a 50%),
-                        radial-gradient(circle at bottom right, #4c1d95, #0f172a 50%);
-            background-color: #020617;
+            background: radial-gradient(circle at 0% 0%, #1e3a8a 0%, transparent 45%),
+                        radial-gradient(circle at 100% 100%, #1e1b4b 0%, transparent 45%),
+                        #020617;
+            background-attachment: fixed;
         }
-        @keyframes float {
+        @keyframes float-musical {
             0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
+            50% { transform: translateY(-12px) rotate(2deg); }
             100% { transform: translateY(0px) rotate(0deg); }
         }
-        @keyframes float-slow {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(-1deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
+        .animate-musical {
+            animation: float-musical 6s ease-in-out infinite;
         }
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+        .blue-glow {
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
         }
-        .animate-float-slow {
-            animation: float-slow 8s ease-in-out infinite;
-        }
-        .text-glow {
-            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        .text-blue-glow {
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
         }
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: #020617;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            border: 2px solid #020617;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(59, 130, 246, 0.4);
         }
     </style>
 <script type="importmap">
@@ -65,7 +80,7 @@
 }
 </script>
 </head>
-<body class="bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-violet-500/30">
+<body class="overflow-x-hidden selection:bg-blue-500/40">
     <div id="root"></div>
 </body>
 </html>
