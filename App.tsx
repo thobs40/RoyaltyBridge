@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import LandingPage from './components/LandingPage';
 import Sidebar from './components/Sidebar';
@@ -27,6 +26,12 @@ const App: React.FC = () => {
     setActiveTab('dashboard');
   };
 
+  // Centralized navigation handler to allow child components to trigger tab changes
+  const navigateTo = (tabId: string) => {
+    setActiveTab(tabId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (!user) {
     return <LandingPage onLogin={handleLogin} />;
   }
@@ -50,8 +55,12 @@ const App: React.FC = () => {
 
   return (
     <div className="flex gradient-bg min-h-screen">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
-      <main className="flex-1 ml-20 lg:ml-64 min-h-screen">
+      <Sidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        onLogout={handleLogout} 
+      />
+      <main className="flex-1 ml-20 lg:ml-64 min-h-screen relative">
         <div className="max-w-[1600px] mx-auto transition-all duration-500">
           {renderContent()}
         </div>
