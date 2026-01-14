@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, BarChart3, ShieldCheck, ArrowRight, Play, Music, Globe, Disc, Volume2, Layers, Radio, CheckCircle2, ChevronRight, Activity } from 'lucide-react';
+import { Sparkles, BarChart3, ShieldCheck, ArrowRight, Play, Music, Globe, Disc, Volume2, Layers, Radio, CheckCircle2, ChevronRight, Activity, Zap } from 'lucide-react';
 import { generateMusicalImage } from '../services/geminiService';
 
 interface LandingPageProps {
@@ -19,13 +19,18 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
   useEffect(() => {
     const fetchImages = async () => {
       setLoading(true);
-      const [synthImg, celloImg, guitarImg] = await Promise.all([
-        generateMusicalImage("a futuristic modular synthesizer with glowing neon blue patches and floating holographic knobs"),
-        generateMusicalImage("a holographic cello made of translucent glass with internal fiber optic wiring glowing violet"),
-        generateMusicalImage("a glowing electric guitar with a body made of dark chrome and laser-etched neon circuits")
-      ]);
-      setImages({ synth: synthImg, cello: celloImg, guitar: guitarImg });
-      setLoading(false);
+      try {
+        const [synthImg, celloImg, guitarImg] = await Promise.all([
+          generateMusicalImage("a futuristic modular synthesizer with glowing neon blue patches and floating holographic knobs"),
+          generateMusicalImage("a holographic cello made of translucent glass with internal fiber optic wiring glowing violet"),
+          generateMusicalImage("a glowing electric guitar with a body made of dark chrome and laser-etched neon circuits")
+        ]);
+        setImages({ synth: synthImg, cello: celloImg, guitar: guitarImg });
+      } catch (err) {
+        console.error("Failed to load AI visuals:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchImages();
 
@@ -107,16 +112,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
           <div className="flex-1 relative w-full max-w-2xl group">
              <div className="absolute inset-0 bg-blue-500/20 blur-[120px] rounded-full scale-110 group-hover:bg-blue-400/30 transition-all duration-1000 animate-pulse"></div>
              <div className="relative glossy-card p-5 rounded-[4.5rem] animate-musical">
-                <div className="relative rounded-[3.5rem] overflow-hidden bg-slate-950 aspect-square">
+                <div className="relative rounded-[3.5rem] overflow-hidden bg-slate-950 aspect-square flex items-center justify-center">
                   {images.synth ? (
                     <img src={images.synth} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[4s]" alt="AI Synthesizer" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-slate-900/50 animate-pulse">
-                      <Radio size={80} className="text-blue-500/20" />
+                    <div className="flex flex-col items-center gap-4 text-slate-700">
+                      <Radio size={80} className={`${loading ? 'animate-pulse text-blue-500/30' : 'text-blue-500/10'}`} />
+                      {loading && <p className="text-[8px] font-black uppercase tracking-[0.4em]">Synthesizing Visuals...</p>}
                     </div>
                   )}
                   <div className="absolute bottom-10 left-10 glass px-6 py-3 rounded-2xl border border-white/10 shadow-xl backdrop-blur-xl">
-                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Protocol Node: Synthesizer</span>
+                    <span className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                       <Zap size={10} className="text-blue-400" /> Protocol Node: Synthesizer
+                    </span>
                   </div>
                 </div>
              </div>
@@ -130,11 +138,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
           
           {/* Cello Card */}
           <div className="glass p-12 rounded-[5rem] border border-blue-500/20 relative overflow-hidden flex flex-col items-center gap-8 group">
-            <div className="relative w-full aspect-square rounded-[3rem] overflow-hidden glossy-card p-2">
+            <div className="relative w-full aspect-square rounded-[3rem] overflow-hidden glossy-card p-2 bg-slate-950 flex items-center justify-center">
               {images.cello ? (
                 <img src={images.cello} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5s]" alt="AI Cello" />
               ) : (
-                <div className="w-full h-full bg-slate-900/50 animate-pulse" />
+                <div className="flex flex-col items-center gap-4">
+                  <Activity size={60} className={`${loading ? 'animate-pulse text-violet-500/30' : 'text-slate-800'}`} />
+                  {loading && <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Rendering...</p>}
+                </div>
               )}
             </div>
             <div className="text-center">
@@ -145,11 +156,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
 
           {/* Guitar Card */}
           <div className="glass p-12 rounded-[5rem] border border-indigo-500/20 relative overflow-hidden flex flex-col items-center gap-8 group">
-            <div className="relative w-full aspect-square rounded-[3rem] overflow-hidden glossy-card p-2">
+            <div className="relative w-full aspect-square rounded-[3rem] overflow-hidden glossy-card p-2 bg-slate-950 flex items-center justify-center">
               {images.guitar ? (
                 <img src={images.guitar} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5s]" alt="AI Guitar" />
               ) : (
-                <div className="w-full h-full bg-slate-900/50 animate-pulse" />
+                <div className="flex flex-col items-center gap-4">
+                  <Disc size={60} className={`${loading ? 'animate-pulse text-blue-500/30' : 'text-slate-800'}`} />
+                  {loading && <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Rendering...</p>}
+                </div>
               )}
             </div>
             <div className="text-center">
