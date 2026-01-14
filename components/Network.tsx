@@ -86,7 +86,7 @@ const Network: React.FC = () => {
         { 
           id: '1', 
           sender: 'them', 
-          text: `Hi Alex! Connection established. I'm ready to review the split proposals for the upcoming project. Is the metadata verified?`, 
+          text: `Hi Alex! Protocol established. I've finished auditing the metadata for the "Neon Nights" release. Everything aligns with the society requirements. Ready to finalize the splits?`, 
           timestamp: '10:30 AM',
           status: 'read'
         }
@@ -109,15 +109,15 @@ const Network: React.FC = () => {
     setMessages(prev => [...prev, newMessage]);
     setMessageText('');
 
-    // Simulated Message Lifecycle
+    // Simulated Network Lifecycle for Read Receipts
     setTimeout(() => {
       setMessages(prev => prev.map(m => m.id === newMessage.id ? { ...m, status: 'delivered' } : m));
-    }, 600);
+    }, 800);
 
     setTimeout(() => {
       setMessages(prev => prev.map(m => m.id === newMessage.id ? { ...m, status: 'read' } : m));
       setIsTyping(true);
-    }, 1500);
+    }, 2200);
 
     // Simulated Auto-Reply
     setTimeout(() => {
@@ -125,12 +125,12 @@ const Network: React.FC = () => {
       const reply: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'them',
-        text: "Understood. Metadata nodes are syncing. I'll authorize the ledger entry once the transaction ID is generated.",
+        text: "Understood. Metadata nodes are syncing. I'll authorize the ledger entry once the transaction ID is generated on the CMO end.",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: 'read'
       };
       setMessages(prev => [...prev, reply]);
-    }, 4000);
+    }, 5000);
   };
 
   if (selectedContact && isChatting) {
@@ -144,11 +144,14 @@ const Network: React.FC = () => {
             <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-blue-600/20 transition-colors border border-white/5">
               <ChevronLeft size={20} />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-[0.3em]">Vault Profile</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.3em]">Exit Vault</span>
           </button>
           <div className="hidden md:flex items-center gap-4 bg-emerald-500/5 px-6 py-2.5 rounded-2xl border border-emerald-500/10">
-            <Lock size={14} className="text-emerald-500" />
-            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">End-to-End Encrypted Tunnel Active</span>
+            <div className="relative flex items-center justify-center">
+              <Lock size={14} className="text-emerald-500 z-10" />
+              <div className="absolute inset-0 bg-emerald-500/20 blur-md rounded-full animate-pulse" />
+            </div>
+            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">E2EE Tunnel Secured</span>
           </div>
         </div>
 
@@ -158,20 +161,22 @@ const Network: React.FC = () => {
           {/* Chat Header */}
           <div className="px-8 py-6 lg:px-12 border-b border-white/5 bg-white/[0.01] flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/20">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-600/20 relative">
                 {selectedContact.name.charAt(0)}
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-4 border-[#020617]" />
               </div>
               <div>
                 <h4 className="text-xl font-black text-white leading-none mb-1.5">{selectedContact.name}</h4>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Node Online</span>
+                   <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{selectedContact.role}</span>
+                   <span className="w-1 h-1 bg-slate-700 rounded-full" />
+                   <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">Active Link</span>
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
               <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5 group">
-                <Shield size={18} className="group-hover:text-blue-400" />
+                <ShieldCheck size={18} className="group-hover:text-blue-400" />
               </button>
               <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5">
                 <MoreVertical size={18} />
@@ -180,35 +185,43 @@ const Network: React.FC = () => {
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-10 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-12 custom-scrollbar">
+            <div className="flex justify-center mb-4">
+              <span className="px-4 py-1.5 bg-white/5 rounded-full text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] border border-white/5">Registry History Decrypted</span>
+            </div>
+
             {messages.map((msg) => (
               <div 
                 key={msg.id} 
                 className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-400`}
               >
-                <div className={`max-w-[75%] space-y-2 ${msg.sender === 'me' ? 'items-end' : 'items-start'} flex flex-col`}>
-                  <div className={`px-7 py-5 rounded-[2.2rem] text-[15px] font-medium leading-relaxed shadow-xl ${
+                <div className={`max-w-[75%] space-y-2.5 ${msg.sender === 'me' ? 'items-end' : 'items-start'} flex flex-col`}>
+                  <div className={`px-8 py-5 rounded-[2.5rem] text-[15px] font-medium leading-relaxed shadow-xl relative group/msg ${
                     msg.sender === 'me' 
-                      ? 'bg-blue-600 bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-tr-none border border-white/10 shadow-blue-900/40' 
+                      ? 'bg-blue-600 bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-tr-none border border-white/10' 
                       : 'glass border border-white/10 text-slate-200 rounded-tl-none'
                   }`}>
                     {msg.text}
                   </div>
-                  <div className={`flex items-center gap-2.5 px-4 ${msg.sender === 'me' ? 'flex-row-reverse' : ''}`}>
+                  
+                  <div className={`flex items-center gap-3 px-4 ${msg.sender === 'me' ? 'flex-row-reverse' : ''}`}>
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-widest">{msg.timestamp}</p>
+                    
                     {msg.sender === 'me' && (
-                      <div className="flex items-center">
-                        {msg.status === 'sent' && <Check size={12} className="text-slate-700" />}
+                      <div className="flex items-center" title={msg.status.toUpperCase()}>
+                        {msg.status === 'sent' && (
+                          <Check size={12} strokeWidth={3} className="text-slate-700 animate-in fade-in zoom-in" />
+                        )}
                         {msg.status === 'delivered' && (
-                          <div className="relative flex">
-                            <Check size={12} className="text-slate-700" />
-                            <Check size={12} className="text-slate-700 -ml-2" />
+                          <div className="relative flex animate-in fade-in zoom-in">
+                            <Check size={12} strokeWidth={3} className="text-slate-700" />
+                            <Check size={12} strokeWidth={3} className="text-slate-700 -ml-2" />
                           </div>
                         )}
                         {msg.status === 'read' && (
-                          <div className="relative flex">
-                            <Check size={12} className="text-blue-400" />
-                            <Check size={12} className="text-blue-400 -ml-2" />
+                          <div className="relative flex animate-in fade-in zoom-in">
+                            <Check size={12} strokeWidth={3} className="text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+                            <Check size={12} strokeWidth={3} className="text-blue-400 -ml-2 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
                           </div>
                         )}
                       </div>
@@ -220,10 +233,10 @@ const Network: React.FC = () => {
             
             {isTyping && (
               <div className="flex justify-start animate-in fade-in duration-300">
-                <div className="glass px-8 py-5 rounded-[2rem] rounded-tl-none border border-white/10 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="glass px-8 py-5 rounded-[2.5rem] rounded-tl-none border border-white/10 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '0ms' }} />
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '150ms' }} />
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
@@ -239,14 +252,14 @@ const Network: React.FC = () => {
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
                 placeholder="Secure message link..."
-                className="w-full bg-slate-900/60 border border-white/10 rounded-[2.8rem] py-6 pl-10 pr-28 text-white placeholder:text-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-8 focus:ring-blue-500/5 transition-all shadow-inner"
+                className="w-full bg-slate-900/60 border border-white/10 rounded-[3rem] py-6 pl-10 pr-28 text-white placeholder:text-slate-700 focus:outline-none focus:border-blue-500/50 focus:ring-8 focus:ring-blue-500/5 transition-all shadow-inner"
               />
               <button 
                 type="submit"
                 disabled={!messageText.trim()}
-                className="absolute right-3.5 top-3.5 bottom-3.5 w-20 bg-blue-600 hover:bg-blue-500 disabled:opacity-20 text-white rounded-[2.2rem] flex items-center justify-center transition-all active:scale-95 shadow-xl shadow-blue-600/30 group-focus-within/form:scale-105"
+                className="absolute right-3.5 top-3.5 bottom-3.5 w-24 bg-blue-600 hover:bg-blue-500 disabled:opacity-20 text-white rounded-[2.5rem] flex items-center justify-center transition-all active:scale-95 shadow-xl shadow-blue-600/30 group-focus-within/form:scale-[1.02]"
               >
-                <Send size={20} />
+                <Send size={20} className="mr-1" />
               </button>
             </form>
           </div>
