@@ -1,12 +1,13 @@
-
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize with the correct named parameter. process.env.API_KEY is assumed to be available.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+// Standard initialization for text tasks
+const getAIClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getRoyaltyInsights = async (earnings: number, plays: number) => {
   try {
-    // Using correct model name 'gemini-3-flash-preview' and direct property access for .text
+    const ai = getAIClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Given a music creator has earned $${earnings} from ${plays} plays this period, provide 3 short, encouraging bullet points about their performance and 1 simple tip for increasing future earnings. Keep it concise and use music industry friendly language.`,
@@ -20,6 +21,7 @@ export const getRoyaltyInsights = async (earnings: number, plays: number) => {
 
 export const getTrackAnalysis = async (title: string, plays: number, earnings: number, cmo: string) => {
   try {
+    const ai = getAIClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Analyze this specific music track performance: Title: "${title}", Plays: ${plays}, Earnings: $${earnings}, Collection Society: ${cmo}. 
@@ -37,6 +39,7 @@ export const getTrackAnalysis = async (title: string, plays: number, earnings: n
 
 export const getContactBio = async (name: string, role: string, worksCount: number) => {
   try {
+    const ai = getAIClient();
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Generate a short (2-3 sentences), professional, and encouraging endorsement bio for a collaborator named ${name} who is a ${role} and has collaborated on ${worksCount} shared works. Highlight their reliability and value in the music production ecosystem.`,
@@ -47,46 +50,69 @@ export const getContactBio = async (name: string, role: string, worksCount: numb
   }
 };
 
-export const explainCmoTerm = async (term: string) => {
+/**
+ * Generates high-quality musical assets using Gemini 3 Pro Image (Nano Banana Pro).
+ * Includes jittered exponential backoff for 503 errors and detection for 403 permission errors.
+ * Explicitly handles 401/Credentials Missing errors for Pro models.
+ */
+export const generateMusicalImage = async (prompt: string, imageSize: "1K" | "2K" | "4K" = "1K", retryCount = 0): Promise<string | null> => {
+  const MAX_RETRIES = 4;
   try {
+    // Re-instantiate to ensure we pick up the latest injected API_KEY
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Explain the music industry term "${term}" (e.g., CMO, PRO, Mechanical Royalty) in one simple, plain-english sentence for a beginner musician.`,
-    });
-    return response.text;
-  } catch (error) {
-    return "This term refers to organizations or processes that help music creators get paid for their creative work.";
-  }
-};
-
-export const generateMusicalImage = async (prompt: string) => {
-  try {
-    // Using gemini-2.5-flash-image for image generation tasks.
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-3-pro-image-preview',
       contents: {
         parts: [
           {
-            text: `High-quality, artistic, hyper-realistic, 3D render of ${prompt}, vibrant purple and blue neon lighting, cinematic depth of field, minimalist clean background, futuristic music industry aesthetic.`,
+            text: `High-fidelity, professional 3D render of ${prompt}. 
+            Aesthetic: Futuristic music industry, vibrant neon blue and deep slate colors, 
+            cinematic studio lighting, sharp focus, clean minimalist background.`,
           },
         ],
       },
       config: {
         imageConfig: {
-          aspectRatio: "1:1"
+          aspectRatio: "1:1",
+          imageSize: imageSize
         }
       }
     });
 
-    // Correctly iterating through parts to find the image part in the GenerateContentResponse.
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:image/png;base64,${part.inlineData.data}`;
+    if (response.candidates?.[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+          return `data:image/png;base64,${part.inlineData.data}`;
+        }
       }
     }
+    
     return null;
-  } catch (error) {
-    console.error("Image Gen Error:", error);
+  } catch (error: any) {
+    const errorMsg = JSON.stringify(error).toLowerCase();
+    
+    // Check for "API keys are not supported" or "CREDENTIALS_MISSING" (401)
+    if (errorMsg.includes("401") || errorMsg.includes("unauthenticated") || errorMsg.includes("credentials_missing") || errorMsg.includes("not supported by this api")) {
+      throw new Error("AUTH_REQUIRED");
+    }
+
+    // Handle 503 Unavailable / Overloaded
+    if (errorMsg.includes("503") || errorMsg.includes("unavailable") || errorMsg.includes("overloaded")) {
+      if (retryCount < MAX_RETRIES) {
+        const backoffDelay = (Math.pow(2, retryCount) * 2000) + (Math.random() * 1000);
+        await delay(backoffDelay);
+        return generateMusicalImage(prompt, imageSize, retryCount + 1);
+      }
+      throw new Error("MODEL_OVERLOADED");
+    }
+
+    // Handle 403 PERMISSION_DENIED
+    if (errorMsg.includes("403") || errorMsg.includes("permission_denied")) {
+      throw new Error("PERMISSION_DENIED");
+    }
+
+    console.error(`Unhandled Image Gen Error:`, error);
     return null;
   }
 };
