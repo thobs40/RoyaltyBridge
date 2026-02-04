@@ -5,10 +5,10 @@ import {
   TrendingUp, Music, ArrowRight, Loader2,
   MoreVertical, Share2, Database, CheckCircle,
   BarChart3, Headphones, ChevronDown, Layers, Plus, Sparkles,
-  Quote, Send, Lock, Shield, Check
+  Quote, Send, Lock, Shield, Check, Bolt
 } from 'lucide-react';
 import { MOCK_ROYALTIES } from '../constants';
-import { getContactBio } from '../services/geminiService';
+import { getContactBio, getFastChatReply } from '../services/geminiService';
 
 interface Contact {
   name: string;
@@ -36,6 +36,8 @@ const Network: React.FC = () => {
   const [loadingBio, setLoadingBio] = useState(false);
   const [loadingEndorsement, setLoadingEndorsement] = useState(false);
   const [aiEndorsement, setAiEndorsement] = useState<string>('');
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const [loadingQuickReplies, setLoadingQuickReplies] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     trust: true,
     collabs: false,
@@ -76,40 +78,51 @@ const Network: React.FC = () => {
       setSelectedContact(null);
       setAiBio('');
       setAiEndorsement('');
+      setQuickReplies([]);
     }
   };
 
-  const startChat = () => {
+  const startChat = async () => {
     setIsChatting(true);
     if (messages.length === 0 && selectedContact) {
-      setMessages([
-        { 
-          id: '1', 
-          sender: 'them', 
-          text: `Hi Alex! Protocol established. I've finished auditing the metadata for the "Neon Nights" release. Everything aligns with the society requirements. Ready to finalize the splits?`, 
-          timestamp: '10:30 AM',
-          status: 'read'
-        }
-      ]);
+      const initialMsg: Message = { 
+        id: '1', 
+        sender: 'them', 
+        text: `Hi Alex! Protocol established. I've finished auditing the metadata for the "Neon Nights" release. Everything aligns with the society requirements. Ready to finalize the splits?`, 
+        timestamp: '10:30 AM',
+        status: 'read'
+      };
+      setMessages([initialMsg]);
+      fetchQuickReplies(initialMsg.text);
     }
   };
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!messageText.trim()) return;
+  const fetchQuickReplies = async (text: string) => {
+    if (!selectedContact) return;
+    setLoadingQuickReplies(true);
+    const replies = await getFastChatReply(text, selectedContact.name);
+    setQuickReplies(replies);
+    setLoadingQuickReplies(false);
+  };
+
+  const handleSendMessage = (e?: React.FormEvent, textOverride?: string) => {
+    if (e) e.preventDefault();
+    const textToSend = textOverride || messageText;
+    if (!textToSend.trim()) return;
 
     const newMessage: Message = {
       id: Date.now().toString(),
       sender: 'me',
-      text: messageText,
+      text: textToSend,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       status: 'sent'
     };
 
     setMessages(prev => [...prev, newMessage]);
     setMessageText('');
+    setQuickReplies([]);
 
-    // Simulated Network Lifecycle for Read Receipts
+    // Simulated Network Lifecycle
     setTimeout(() => {
       setMessages(prev => prev.map(m => m.id === newMessage.id ? { ...m, status: 'delivered' } : m));
     }, 800);
@@ -120,16 +133,18 @@ const Network: React.FC = () => {
     }, 2200);
 
     // Simulated Auto-Reply
-    setTimeout(() => {
+    setTimeout(async () => {
       setIsTyping(false);
+      const replyText = "Understood. Metadata nodes are syncing. I'll authorize the ledger entry once the transaction ID is generated on the CMO end.";
       const reply: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'them',
-        text: "Understood. Metadata nodes are syncing. I'll authorize the ledger entry once the transaction ID is generated on the CMO end.",
+        text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: 'read'
       };
       setMessages(prev => [...prev, reply]);
+      fetchQuickReplies(replyText);
     }, 5000);
   };
 
@@ -139,6 +154,7 @@ const Network: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <button 
             onClick={handleBack}
+            aria-label="Back to contact profile"
             className="flex items-center gap-3 text-slate-500 hover:text-white transition-all group"
           >
             <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-blue-600/20 transition-colors border border-white/5">
@@ -175,17 +191,17 @@ const Network: React.FC = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5 group">
+              <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5 group" aria-label="Verify encryption">
                 <ShieldCheck size={18} className="group-hover:text-blue-400" />
               </button>
-              <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5">
+              <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 transition-all border border-white/5" aria-label="More options">
                 <MoreVertical size={18} />
               </button>
             </div>
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-12 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-8 lg:p-12 space-y-12 custom-scrollbar" role="log">
             <div className="flex justify-center mb-4">
               <span className="px-4 py-1.5 bg-white/5 rounded-full text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] border border-white/5">Registry History Decrypted</span>
             </div>
@@ -209,17 +225,15 @@ const Network: React.FC = () => {
                     
                     {msg.sender === 'me' && (
                       <div className="flex items-center" title={msg.status.toUpperCase()}>
-                        {msg.status === 'sent' && (
-                          <Check size={12} strokeWidth={3} className="text-slate-700 animate-in fade-in zoom-in" />
-                        )}
+                        {msg.status === 'sent' && <Check size={12} strokeWidth={3} className="text-slate-700" />}
                         {msg.status === 'delivered' && (
-                          <div className="relative flex animate-in fade-in zoom-in">
+                          <div className="relative flex">
                             <Check size={12} strokeWidth={3} className="text-slate-700" />
                             <Check size={12} strokeWidth={3} className="text-slate-700 -ml-2" />
                           </div>
                         )}
                         {msg.status === 'read' && (
-                          <div className="relative flex animate-in fade-in zoom-in">
+                          <div className="relative flex">
                             <Check size={12} strokeWidth={3} className="text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
                             <Check size={12} strokeWidth={3} className="text-blue-400 -ml-2 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
                           </div>
@@ -232,11 +246,11 @@ const Network: React.FC = () => {
             ))}
             
             {isTyping && (
-              <div className="flex justify-start animate-in fade-in duration-300">
+              <div className="flex justify-start">
                 <div className="glass px-8 py-5 rounded-[2.5rem] rounded-tl-none border border-white/10 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '0ms' }} />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '150ms' }} />
-                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(59,130,246,0.5)]" style={{ animationDelay: '300ms' }} />
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             )}
@@ -246,6 +260,22 @@ const Network: React.FC = () => {
 
           {/* Input Area */}
           <div className="p-8 lg:p-10 bg-white/[0.02] border-t border-white/5 backdrop-blur-3xl">
+            {/* Quick Replies (Lite Model) */}
+            {quickReplies.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6 animate-in slide-in-from-bottom-2 duration-500">
+                {quickReplies.map((reply, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSendMessage(undefined, reply)}
+                    className="px-5 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/20 rounded-2xl text-[10px] font-black text-blue-400 uppercase tracking-widest transition-all flex items-center gap-2 group/qr"
+                  >
+                    <Bolt size={10} className="group-hover/qr:scale-125 transition-transform" />
+                    {reply}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <form onSubmit={handleSendMessage} className="relative group/form">
               <input 
                 type="text"
@@ -257,6 +287,7 @@ const Network: React.FC = () => {
               <button 
                 type="submit"
                 disabled={!messageText.trim()}
+                aria-label="Send message"
                 className="absolute right-3.5 top-3.5 bottom-3.5 w-24 bg-blue-600 hover:bg-blue-500 disabled:opacity-20 text-white rounded-[2.5rem] flex items-center justify-center transition-all active:scale-95 shadow-xl shadow-blue-600/30 group-focus-within/form:scale-[1.02]"
               >
                 <Send size={20} className="mr-1" />
@@ -274,6 +305,7 @@ const Network: React.FC = () => {
         <div className="flex justify-between items-center mb-10">
           <button 
             onClick={handleBack}
+            aria-label="Back to network directory"
             className="flex items-center gap-3 text-slate-500 hover:text-white transition-all group"
           >
             <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-blue-600/20 transition-colors border border-white/5">
@@ -282,10 +314,10 @@ const Network: React.FC = () => {
             <span className="text-[11px] font-black uppercase tracking-[0.3em]">Network Directory</span>
           </button>
           <div className="flex gap-3">
-            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 border border-white/5 transition-all">
+            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 border border-white/5 transition-all" aria-label="Share profile">
               <Share2 size={18} />
             </button>
-            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 border border-white/5 transition-all">
+            <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-slate-400 border border-white/5 transition-all" aria-label="Profile settings">
               <MoreVertical size={18} />
             </button>
           </div>
@@ -385,7 +417,8 @@ const Network: React.FC = () => {
             <div className={`glass rounded-[3rem] border border-white/5 transition-all duration-500 overflow-hidden ${expandedSections.trust ? 'bg-white/[0.02]' : 'bg-transparent'}`}>
               <button 
                 onClick={() => toggleSection('trust')}
-                className="w-full px-10 py-8 flex justify-between items-center group/btn"
+                aria-expanded={expandedSections.trust}
+                className="w-full px-10 py-8 flex justify-between items-center group/btn focus:outline-none focus:bg-white/5"
               >
                 <div className="flex items-center gap-5">
                   <div className={`p-4 rounded-2xl transition-all duration-500 ${expandedSections.trust ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'bg-white/5 text-slate-500'}`}>
@@ -431,7 +464,8 @@ const Network: React.FC = () => {
             <div className={`glass rounded-[3rem] border border-white/5 transition-all duration-500 overflow-hidden ${expandedSections.collabs ? 'bg-white/[0.02]' : 'bg-transparent'}`}>
               <button 
                 onClick={() => toggleSection('collabs')}
-                className="w-full px-10 py-8 flex justify-between items-center group/btn"
+                aria-expanded={expandedSections.collabs}
+                className="w-full px-10 py-8 flex justify-between items-center group/btn focus:outline-none focus:bg-white/5"
               >
                 <div className="flex items-center gap-5">
                   <div className={`p-4 rounded-2xl transition-all duration-500 ${expandedSections.collabs ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'bg-white/5 text-slate-500'}`}>
@@ -474,7 +508,8 @@ const Network: React.FC = () => {
             <div className={`glass rounded-[3rem] border border-white/5 transition-all duration-500 overflow-hidden ${expandedSections.portfolio ? 'bg-white/[0.02]' : 'bg-transparent'}`}>
               <button 
                 onClick={() => toggleSection('portfolio')}
-                className="w-full px-10 py-8 flex justify-between items-center group/btn"
+                aria-expanded={expandedSections.portfolio}
+                className="w-full px-10 py-8 flex justify-between items-center group/btn focus:outline-none focus:bg-white/5"
               >
                 <div className="flex items-center gap-5">
                   <div className={`p-4 rounded-2xl transition-all duration-500 ${expandedSections.portfolio ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30' : 'bg-white/5 text-slate-500'}`}>
@@ -494,7 +529,7 @@ const Network: React.FC = () => {
                 <div className="px-10 pb-10 space-y-6 animate-in slide-in-from-top-4 duration-500">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {MOCK_ROYALTIES.slice(0, 4).map((work, idx) => (
-                      <div key={idx} className="group/work glass p-7 rounded-[2.5rem] border border-white/5 hover:border-emerald-500/20 hover:bg-emerald-600/[0.02] transition-all cursor-pointer">
+                      <div key={idx} tabIndex={0} className="group/work glass p-7 rounded-[2.5rem] border border-white/5 hover:border-emerald-500/20 hover:bg-emerald-600/[0.02] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/50">
                         <div className="flex justify-between items-start mb-6">
                           <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-slate-600 group-hover/work:text-emerald-400 transition-all duration-500">
                             <Headphones size={32} />
@@ -540,7 +575,7 @@ const Network: React.FC = () => {
               className="bg-white/5 border border-white/10 rounded-[2rem] pl-14 pr-8 py-5 text-white focus:outline-none focus:border-blue-500/50 transition-all w-full sm:w-80 text-sm font-medium shadow-inner"
             />
           </div>
-          <button className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/30 transition-all flex items-center justify-center gap-4">
+          <button className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-blue-600/30 transition-all flex items-center justify-center gap-4 active:scale-95">
              <UserPlus size={20} /> Invite Node
           </button>
         </div>
@@ -548,7 +583,15 @@ const Network: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {contacts.map((contact, i) => (
-          <div key={i} className="group glass p-10 rounded-[3.5rem] border border-white/5 hover:border-blue-500/30 transition-all duration-700 relative overflow-hidden bg-white/[0.01]">
+          <div 
+            key={i} 
+            tabIndex={0}
+            role="button"
+            aria-label={`View profile of ${contact.name}, ${contact.role}`}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleViewProfile(contact)}
+            onClick={() => handleViewProfile(contact)}
+            className="group glass p-10 rounded-[3.5rem] border border-white/5 hover:border-blue-500/30 transition-all duration-700 relative overflow-hidden bg-white/[0.01] cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-500/20"
+          >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex flex-col items-center text-center">
               <div className="w-28 h-28 rounded-[2.5rem] bg-gradient-to-br from-slate-800 to-slate-900 mb-8 flex items-center justify-center text-4xl font-black text-white shadow-2xl group-hover:scale-110 transition-transform duration-700 relative border-2 border-white/5">
@@ -574,7 +617,6 @@ const Network: React.FC = () => {
               </div>
 
               <button 
-                onClick={() => handleViewProfile(contact)}
                 className="w-full py-5 bg-white/5 hover:bg-blue-600 text-slate-400 hover:text-white border border-white/10 hover:border-blue-500/50 rounded-2xl font-black text-[11px] uppercase tracking-[0.3em] transition-all duration-300 flex items-center justify-center gap-3 group/btn"
               >
                 Inspect Vault

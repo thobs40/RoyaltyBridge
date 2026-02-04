@@ -1,12 +1,11 @@
-
 import React from 'react';
-import { LayoutDashboard, Music, DollarSign, Send, Users, Settings, Bell } from 'lucide-react';
+import { LayoutDashboard, Music, DollarSign, Send, Users, Sparkles } from 'lucide-react';
 
 export const COLORS = {
-  primary: '#8b5cf6', // Violet 500
-  secondary: '#3b82f6', // Blue 500
+  primary: '#3b82f6', // Blue 500
+  secondary: '#a855f7', // Violet 500
   accent: '#ec4899', // Pink 500
-  background: '#0f172a', // Slate 900
+  background: '#020617', // Slate 950
 };
 
 export const MOCK_ROYALTIES = [
@@ -25,6 +24,7 @@ export const MOCK_SUBMISSIONS = [
 export const NAV_ITEMS = [
   { icon: <LayoutDashboard size={20} />, label: 'Dashboard', id: 'dashboard' },
   { icon: <Music size={20} />, label: 'My Works', id: 'works' },
+  { icon: <Sparkles size={20} />, label: 'Creative Lab', id: 'lab' },
   { icon: <DollarSign size={20} />, label: 'Earnings', id: 'earnings' },
   { icon: <Send size={20} />, label: 'Submissions', id: 'submissions' },
   { icon: <Users size={20} />, label: 'Network', id: 'network' },

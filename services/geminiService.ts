@@ -5,6 +5,40 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 // Standard initialization for text tasks
 const getAIClient = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
+/**
+ * Low-latency insights using Gemini 2.5 Flash Lite
+ */
+export const getFastInsight = async (topic: string) => {
+  try {
+    const ai = getAIClient();
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite-latest",
+      contents: `Provide a extremely concise (max 15 words), professional music industry insight or status update regarding: ${topic}. Use futuristic technical language.`,
+    });
+    return response.text;
+  } catch (error) {
+    console.error("Fast Insight Error:", error);
+    return "Node synchronized. Market volatility within expected parameters.";
+  }
+};
+
+/**
+ * Low-latency chat suggestions using Gemini 2.5 Flash Lite
+ */
+export const getFastChatReply = async (lastMessage: string, contactName: string) => {
+  try {
+    const ai = getAIClient();
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite-latest",
+      contents: `The contact "${contactName}" just said: "${lastMessage}". Provide 3 extremely short quick-reply options (max 4 words each) for a professional music collaborator. Return as a comma-separated list.`,
+    });
+    return response.text?.split(',').map(s => s.trim()) || [];
+  } catch (error) {
+    console.error("Fast Chat Reply Error:", error);
+    return ["Understood", "Checking ledger", "Proceed with sync"];
+  }
+};
+
 export const getRoyaltyInsights = async (earnings: number, plays: number) => {
   try {
     const ai = getAIClient();
@@ -52,13 +86,10 @@ export const getContactBio = async (name: string, role: string, worksCount: numb
 
 /**
  * Generates high-quality musical assets using Gemini 3 Pro Image (Nano Banana Pro).
- * Includes jittered exponential backoff for 503 errors and detection for 403 permission errors.
- * Explicitly handles 401/Credentials Missing errors for Pro models.
  */
 export const generateMusicalImage = async (prompt: string, imageSize: "1K" | "2K" | "4K" = "1K", retryCount = 0): Promise<string | null> => {
   const MAX_RETRIES = 4;
   try {
-    // Re-instantiate to ensure we pick up the latest injected API_KEY
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
@@ -92,12 +123,10 @@ export const generateMusicalImage = async (prompt: string, imageSize: "1K" | "2K
   } catch (error: any) {
     const errorMsg = JSON.stringify(error).toLowerCase();
     
-    // Check for "API keys are not supported" or "CREDENTIALS_MISSING" (401)
     if (errorMsg.includes("401") || errorMsg.includes("unauthenticated") || errorMsg.includes("credentials_missing") || errorMsg.includes("not supported by this api")) {
       throw new Error("AUTH_REQUIRED");
     }
 
-    // Handle 503 Unavailable / Overloaded
     if (errorMsg.includes("503") || errorMsg.includes("unavailable") || errorMsg.includes("overloaded")) {
       if (retryCount < MAX_RETRIES) {
         const backoffDelay = (Math.pow(2, retryCount) * 2000) + (Math.random() * 1000);
@@ -107,7 +136,6 @@ export const generateMusicalImage = async (prompt: string, imageSize: "1K" | "2K
       throw new Error("MODEL_OVERLOADED");
     }
 
-    // Handle 403 PERMISSION_DENIED
     if (errorMsg.includes("403") || errorMsg.includes("permission_denied")) {
       throw new Error("PERMISSION_DENIED");
     }

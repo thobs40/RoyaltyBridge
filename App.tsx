@@ -6,6 +6,7 @@ import Works from './components/Works';
 import Earnings from './components/Earnings';
 import Submissions from './components/Submissions';
 import Network from './components/Network';
+import CreativeLab from './components/CreativeLab';
 import { User } from './types';
 
 const App: React.FC = () => {
@@ -26,22 +27,14 @@ const App: React.FC = () => {
     setActiveTab('dashboard');
   };
 
-  // Centralized navigation handler to allow child components to trigger tab changes
-  const navigateTo = (tabId: string) => {
-    setActiveTab(tabId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  if (!user) {
-    return <LandingPage onLogin={handleLogin} />;
-  }
-
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
       case 'works':
         return <Works />;
+      case 'lab':
+        return <CreativeLab />;
       case 'earnings':
         return <Earnings />;
       case 'submissions':
@@ -52,6 +45,10 @@ const App: React.FC = () => {
         return <Dashboard />;
     }
   };
+
+  if (!user) {
+    return <LandingPage onLogin={handleLogin} />;
+  }
 
   return (
     <div className="flex gradient-bg min-h-screen">

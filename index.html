@@ -5,66 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiRoy - Music Royalty Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --gloss-blue: rgba(59, 130, 246, 0.08);
-            --gloss-border: rgba(255, 255, 255, 0.12);
-            --accent-blue: #3b82f6;
+            --glass-bg: rgba(15, 23, 42, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #3b82f6;
+            --neon-violet: #a855f7;
+            --bg-deep: #020617;
         }
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #020617;
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-deep);
             color: #f8fafc;
-        }
-        .glass {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--gloss-border);
-        }
-        .glossy-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
-        }
-        .glossy-card:hover {
-            border-color: rgba(59, 130, 246, 0.3);
-            background: linear-gradient(145deg, rgba(59, 130, 246, 0.05) 0%, rgba(255,255,255,0.01) 100%);
+            overflow-x: hidden;
         }
         .gradient-bg {
-            background: radial-gradient(circle at 0% 0%, #1e3a8a 0%, transparent 45%),
-                        radial-gradient(circle at 100% 100%, #1e1b4b 0%, transparent 45%),
-                        #020617;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
             background-attachment: fixed;
+            min-height: 100vh;
         }
-        @keyframes float-musical {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-12px) rotate(2deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
+        .glass-ultra {
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .animate-musical {
-            animation: float-musical 6s ease-in-out infinite;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .blue-glow {
-            box-shadow: 0 0 40px rgba(59, 130, 246, 0.15);
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-4px);
         }
-        .text-blue-glow {
-            text-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+        .neon-glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
         }
-        ::-webkit-scrollbar {
-            width: 8px;
+        .neon-glow-violet {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
         }
-        ::-webkit-scrollbar-track {
-            background: #020617;
+        .text-neon {
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.2);
-            border-radius: 20px;
-            border: 2px solid #020617;
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.4);
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.3);
         }
     </style>
 <script type="importmap">
@@ -80,7 +89,7 @@
 }
 </script>
 </head>
-<body class="overflow-x-hidden selection:bg-blue-500/40">
+<body class="selection:bg-blue-500/40">
     <div id="root"></div>
 </body>
 </html>
